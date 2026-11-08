@@ -93,17 +93,9 @@ async function startPlayback(hi, color, durationMs, product) {
   const premium = isEntitled(product);
   if (!premium && !cfg.FREE_COLORS.includes(color)) return upsellOrExplain(hi, product, color, durationMs);
 
-  let budget;
-  let speech;
-  if (premium) {
-    budget = durationMs || pb.UNLIMITED;
-    speech = durationMs ? `Playing ${color} noise for ${pb.speakDuration(durationMs)}.` : `Playing ${color} noise.`;
-  } else {
-    budget = Math.min(durationMs || cfg.FREE_LIMIT_MS, cfg.FREE_LIMIT_MS);
-    speech = durationMs && durationMs > cfg.FREE_LIMIT_MS
-      ? `The free version plays for up to ${pb.speakDuration(cfg.FREE_LIMIT_MS)}. Playing ${color} noise for ${pb.speakDuration(budget)}.`
-      : `Playing ${color} noise for ${pb.speakDuration(budget)}.`;
-  }
+  // Free colors play exactly like premium ones: all night, or on a timer. No cutoff.
+  const budget = durationMs || pb.UNLIMITED;
+  const speech = durationMs ? `Playing ${color} noise for ${pb.speakDuration(durationMs)}.` : `Playing ${color} noise.`;
   return play(hi.responseBuilder.speak(speech), pb.firstItem(color, budget)).withShouldEndSession(true).getResponse();
 }
 
@@ -199,7 +191,7 @@ const WhatCanIBuyHandler = {
     }
     setPending(hi, { type: 'buy' });
     return hi.responseBuilder
-      .speak(`${cfg.PREMIUM_NAME} adds pink and brown noise and removes the one hour limit, so any color can play all night or for a time you choose. Want to subscribe?`)
+      .speak(`${cfg.PREMIUM_NAME} adds pink and brown noise, the softer and deeper sounds many people sleep best to. Want to subscribe?`)
       .reprompt(`Want to subscribe to ${cfg.PREMIUM_NAME}?`)
       .getResponse();
   },
@@ -264,8 +256,8 @@ const HelpHandler = {
     const tier = isEntitled(product)
       ? ` You have ${cfg.PREMIUM_NAME}, so every color plays until you stop it.`
       : (isPurchasable(product)
-        ? ` White noise is free for up to an hour at a time. ${cfg.PREMIUM_NAME} adds pink and brown, with no time limit. Say what can I buy to hear more.`
-        : ' White noise is free for up to an hour at a time.');
+        ? ` White noise is free, all night if you like. ${cfg.PREMIUM_NAME} adds pink and brown. Say what can I buy to hear more.`
+        : ' White noise is free, all night if you like.');
     return hi.responseBuilder
       .speak(`${cfg.SKILL_NAME} plays steady background noise. Say white, pink, or brown noise, or add a time, like pink noise for 30 minutes. Say stop or pause anytime.${tier} Which would you like?`)
       .reprompt('Say white, pink, or brown noise.')

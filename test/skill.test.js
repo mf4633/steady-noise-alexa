@@ -10,7 +10,7 @@ const path = require('node:path');
 const Alexa = require(path.join(__dirname, '../lambda/node_modules/ask-sdk-core'));
 const skillMod = require('../lambda/index.js');
 const pb = require('../lambda/src/playback.js');
-const { FILE_MS, FREE_LIMIT_MS } = require('../lambda/src/config.js');
+const { FILE_MS } = require('../lambda/src/config.js');
 
 const HOUR = 3600e3;
 const MIN = 60e3;
@@ -127,17 +127,17 @@ test('launch pitches premium only to non-subscribers', async () => {
   assert.doesNotMatch(speech(await run(null, { type: 'LaunchRequest' })), /Premium/);     // ISP not offered
 });
 
-test('free user: white noise plays, capped at one hour', async () => {
+test('free user: white noise plays all night, no cap', async () => {
   const r = await run(FREE, intent('PlayNoiseIntent', { color: 'white' }));
   const d = playDir(r);
   assert.equal(d.playBehavior, 'REPLACE_ALL');
   assert.equal(d.audioItem.stream.url, 'https://cdn.test/noise/white.mp3');
-  assert.equal(pb.parseToken(d.audioItem.stream.token).budget, FREE_LIMIT_MS);
+  assert.equal(pb.parseToken(d.audioItem.stream.token).budget, pb.UNLIMITED);
   assert.equal(r.shouldEndSession, true);
 
   const long = await run(FREE, intent('PlayNoiseIntent', { color: 'white', duration: 'PT8H' }));
-  assert.match(speech(long), /free version plays for up to an hour/);
-  assert.equal(pb.parseToken(playDir(long).audioItem.stream.token).budget, FREE_LIMIT_MS);
+  assert.doesNotMatch(speech(long), /free version/);
+  assert.equal(pb.parseToken(playDir(long).audioItem.stream.token).budget, 8 * HOUR);
 });
 
 test('free user: pink/brown triggers the Upsell, carrying the request', async () => {
@@ -207,8 +207,8 @@ test('PlaybackNearlyFinished enqueues with expectedPreviousToken; spent budget s
   assert.equal(d.audioItem.stream.expectedPreviousToken, tok);
   assert.equal(r.outputSpeech, undefined);
 
-  const free = pb.firstItem('white', FREE_LIMIT_MS).token;
-  const end = await run(FREE, { type: 'AudioPlayer.PlaybackNearlyFinished', token: free, offsetInMilliseconds: FILE_MS - 5000 });
+  const timed = pb.firstItem('white', HOUR).token;
+  const end = await run(FREE, { type: 'AudioPlayer.PlaybackNearlyFinished', token: timed, offsetInMilliseconds: FILE_MS - 5000 });
   assert.equal(playDir(end), undefined);
 });
 

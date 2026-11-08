@@ -15,8 +15,8 @@
           "name": "Steady Noise Premium",
           "smallIconUri": "https://mf4633.github.io/steady-noise-alexa/icon-108.png",
           "largeIconUri": "https://mf4633.github.io/steady-noise-alexa/icon-512.png",
-          "summary": "Pink and brown noise, and no time limit on any color.",
-          "description": "Adds pink and brown noise to Steady Noise and removes the one hour limit, so any color plays all night or for a time you choose.",
+          "summary": "Adds pink and brown noise.",
+          "description": "Adds pink and brown noise to Steady Noise. Pink is softer, like steady rain; brown is deeper, like a distant waterfall. Both play all night or on a timer.",
           "examplePhrases": [
             "Alexa, open Steady Noise",
             "buy premium"
@@ -29,7 +29,7 @@
           ],
           "customProductPrompts": {
             "purchasePromptDescription": "Steady Noise Premium adds pink and brown noise and plays any color all night.",
-            "boughtCardDescription": "You now have Steady Noise Premium: white, pink, and brown noise with no time limit."
+            "boughtCardDescription": "You now have Steady Noise Premium: white, pink, and brown noise."
           }
         }
       },
@@ -56,6 +56,6 @@
         }
       }
     },
-    "testingInstructions": "Ask for pink or brown noise, or say 'buy premium'. Premium unlocks pink and brown and removes the one hour free limit."
+    "testingInstructions": "Ask for pink or brown noise, or say 'buy premium'. Premium unlocks pink and brown. White noise is free with no time limit."
   }
 }

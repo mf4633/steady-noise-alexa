@@ -11,8 +11,6 @@ module.exports = {
   FILE_MS: 60 * 60 * 1000,
   COLORS: ['white', 'pink', 'brown'],
   FREE_COLORS: ['white'],
-  // Free tier plays for up to this long per request.
-  FREE_LIMIT_MS: 60 * 60 * 1000,
   // Longest timer we accept; anything longer is treated as "all night".
   MAX_TIMER_MS: 12 * 60 * 60 * 1000,
   // ISP referenceName in skill-package/isps/subscription/premium.json.
