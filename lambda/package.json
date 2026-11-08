@@ -1,0 +1,15 @@
+{
+  "name": "steady-noise-alexa",
+  "version": "1.0.0",
+  "description": "Alexa skill: white, pink, and brown noise with a premium subscription",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "test": "node --test ../test/skill.test.js"
+  },
+  "dependencies": {
+    "ask-sdk-core": "^2.14.0",
+    "ask-sdk-model": "^1.86.0"
+  },
+  "license": "MIT"
+}

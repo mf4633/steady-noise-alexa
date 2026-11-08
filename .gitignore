@@ -1,0 +1,7 @@
+node_modules/
+.ask/
+*.log
+# Rendered audio: regenerate with audio-build/make_noise.py, host separately
+audio/*.mp3
+!docs/audio/*.mp3
+__pycache__/

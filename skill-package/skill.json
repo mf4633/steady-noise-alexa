@@ -1,0 +1,66 @@
+{
+  "manifest": {
+    "manifestVersion": "1.0",
+    "publishingInformation": {
+      "locales": {
+        "en-US": {
+          "name": "Steady Noise",
+          "summary": "White, pink, and brown noise for sleep, focus, or masking sound.",
+          "description": "Steady Noise plays continuous white, pink, or brown noise.\n\nWhite noise is bright and even across all frequencies. Pink noise is softer, like steady rain. Brown noise is deeper still, like a distant waterfall or the rumble of a plane cabin.\n\nTry:\n- Alexa, ask Steady Noise for brown noise\n- Alexa, ask Steady Noise for pink noise for 30 minutes\n- Alexa, pause / Alexa, resume\n\nWhite noise is free for up to an hour at a time. Steady Noise Premium (monthly subscription with a free trial) adds pink and brown noise and lets any color play all night or for a time you choose.\n\nEach sound is a one-hour seamless loop generated from scratch, level-matched so switching colors does not jump in volume.",
+          "examplePhrases": [
+            "Alexa, open Steady Noise",
+            "Alexa, ask Steady Noise for brown noise",
+            "Alexa, ask Steady Noise for pink noise for two hours"
+          ],
+          "keywords": [
+            "white noise",
+            "pink noise",
+            "brown noise",
+            "sleep sounds",
+            "focus",
+            "noise machine",
+            "sound masking",
+            "ambient",
+            "background noise"
+          ],
+          "smallIconUri": "https://mf4633.github.io/steady-noise-alexa/icon-108.png",
+          "largeIconUri": "https://mf4633.github.io/steady-noise-alexa/icon-512.png"
+        }
+      },
+      "isAvailableWorldwide": false,
+      "distributionCountries": [
+        "US"
+      ],
+      "testingInstructions": "Say 'open Steady Noise', then 'white noise' (free, plays up to one hour). Ask for 'pink noise' or 'brown noise' to hear the Premium upsell; accept it to subscribe in the sandbox. 'pink noise for 1 minute' demonstrates the timer: the stream ends after one minute. Pause, resume, stop, and the device play/pause buttons are handled. No account linking or permissions are required.",
+      "category": "HEALTH_AND_FITNESS"
+    },
+    "apis": {
+      "custom": {
+        "endpoint": {
+          "sourceDir": "lambda"
+        },
+        "interfaces": [
+          {
+            "type": "AUDIO_PLAYER"
+          }
+        ]
+      }
+    },
+    "manifestAttributes": {
+      "isChildDirected": false
+    },
+    "privacyAndCompliance": {
+      "allowsPurchases": true,
+      "usesPersonalInfo": false,
+      "isChildDirected": false,
+      "isExportCompliant": true,
+      "containsAds": false,
+      "locales": {
+        "en-US": {
+          "privacyPolicyUrl": "https://mf4633.github.io/steady-noise-alexa/privacy.html",
+          "termsOfUseUrl": "https://mf4633.github.io/steady-noise-alexa/terms.html"
+        }
+      }
+    }
+  }
+}

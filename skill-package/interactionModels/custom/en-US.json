@@ -1,0 +1,204 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "steady noise",
+      "intents": [
+        {
+          "name": "AMAZON.PauseIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.ResumeIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NavigateHomeIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.FallbackIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.YesIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NoIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.LoopOffIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.LoopOnIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NextIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.PreviousIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.RepeatIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.ShuffleOffIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.ShuffleOnIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StartOverIntent",
+          "samples": []
+        },
+        {
+          "name": "PlayNoiseIntent",
+          "slots": [
+            {
+              "name": "color",
+              "type": "NOISE_COLOR"
+            },
+            {
+              "name": "duration",
+              "type": "AMAZON.DURATION"
+            }
+          ],
+          "samples": [
+            "play {color} noise",
+            "play {color} noise for {duration}",
+            "play {color}",
+            "play {color} for {duration}",
+            "start {color} noise",
+            "start {color} noise for {duration}",
+            "{color} noise",
+            "{color} noise for {duration}",
+            "{color}",
+            "for {color} noise",
+            "for {color} noise for {duration}",
+            "put on {color} noise",
+            "put on {color} noise for {duration}",
+            "turn on {color} noise",
+            "turn on {color} noise for {duration}",
+            "I want {color} noise",
+            "I want {color} noise for {duration}",
+            "switch to {color} noise",
+            "switch to {color} noise for {duration}",
+            "switch to {color}",
+            "switch to {color} for {duration}",
+            "play some {color} noise",
+            "play some {color} noise for {duration}",
+            "{color} for {duration}",
+            "play noise for {duration}",
+            "play noise",
+            "play some noise",
+            "start",
+            "play"
+          ]
+        },
+        {
+          "name": "BuyIntent",
+          "slots": [],
+          "samples": [
+            "buy premium",
+            "subscribe",
+            "upgrade",
+            "get premium",
+            "buy steady noise premium",
+            "sign up for premium",
+            "buy the subscription",
+            "start my subscription",
+            "start a free trial",
+            "start the free trial"
+          ]
+        },
+        {
+          "name": "WhatCanIBuyIntent",
+          "slots": [],
+          "samples": [
+            "what can I buy",
+            "what is premium",
+            "tell me about premium",
+            "what do I get with premium",
+            "what does premium include",
+            "what's in premium",
+            "what can I get"
+          ]
+        },
+        {
+          "name": "CancelSubscriptionIntent",
+          "slots": [],
+          "samples": [
+            "cancel my subscription",
+            "cancel premium",
+            "cancel steady noise premium",
+            "unsubscribe",
+            "stop my subscription",
+            "refund premium",
+            "I want a refund",
+            "end my subscription"
+          ]
+        }
+      ],
+      "types": [
+        {
+          "name": "NOISE_COLOR",
+          "values": [
+            {
+              "id": "white",
+              "name": {
+                "value": "white",
+                "synonyms": [
+                  "white noise",
+                  "plain",
+                  "static"
+                ]
+              }
+            },
+            {
+              "id": "pink",
+              "name": {
+                "value": "pink",
+                "synonyms": [
+                  "pink noise"
+                ]
+              }
+            },
+            {
+              "id": "brown",
+              "name": {
+                "value": "brown",
+                "synonyms": [
+                  "brown noise",
+                  "brownian",
+                  "red",
+                  "red noise",
+                  "deep"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
