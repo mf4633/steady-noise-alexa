@@ -168,7 +168,6 @@
               "name": {
                 "value": "white",
                 "synonyms": [
-                  "white noise",
                   "plain",
                   "static"
                 ]
@@ -178,9 +177,7 @@
               "id": "pink",
               "name": {
                 "value": "pink",
-                "synonyms": [
-                  "pink noise"
-                ]
+                "synonyms": []
               }
             },
             {
@@ -188,10 +185,8 @@
               "name": {
                 "value": "brown",
                 "synonyms": [
-                  "brown noise",
                   "brownian",
                   "red",
-                  "red noise",
                   "deep"
                 ]
               }

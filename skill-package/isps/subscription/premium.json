@@ -18,8 +18,8 @@
           "summary": "Pink and brown noise, and no time limit on any color.",
           "description": "Adds pink and brown noise to Steady Noise and removes the one hour limit, so any color plays all night or for a time you choose.",
           "examplePhrases": [
-            "Alexa, ask Steady Noise for brown noise",
-            "Alexa, ask Steady Noise to buy premium"
+            "Alexa, open Steady Noise",
+            "buy premium"
           ],
           "keywords": [
             "brown noise",

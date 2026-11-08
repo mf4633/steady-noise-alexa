@@ -6,11 +6,9 @@
         "en-US": {
           "name": "Steady Noise",
           "summary": "White, pink, and brown noise for sleep, focus, or masking sound.",
-          "description": "Steady Noise plays continuous white, pink, or brown noise.\n\nWhite noise is bright and even across all frequencies. Pink noise is softer, like steady rain. Brown noise is deeper still, like a distant waterfall or the rumble of a plane cabin.\n\nTry:\n- Alexa, ask Steady Noise for brown noise\n- Alexa, ask Steady Noise for pink noise for 30 minutes\n- Alexa, pause / Alexa, resume\n\nWhite noise is free for up to an hour at a time. Steady Noise Premium (monthly subscription with a free trial) adds pink and brown noise and lets any color play all night or for a time you choose.\n\nEach sound is a one-hour seamless loop generated from scratch, level-matched so switching colors does not jump in volume.",
+          "description": "Steady Noise plays continuous white, pink, or brown noise.\n\nWhite noise is bright and even across all frequencies. Pink noise is softer, like steady rain. Brown noise is deeper still, like a distant waterfall or the rumble of a plane cabin.\n\nHow to use it:\n- Say \"Alexa, open Steady Noise\", then name a color: \"brown noise\"\n- Add a time if you like: \"pink noise for 30 minutes\"\n- \"Alexa, pause\" and \"Alexa, resume\" work anytime\n\nWhite noise is free for up to an hour at a time. Steady Noise Premium (monthly subscription with a free trial) adds pink and brown noise and lets any color play all night or for a time you choose.\n\nEach sound is a one-hour seamless loop generated from scratch, level-matched so switching colors does not jump in volume.",
           "examplePhrases": [
-            "Alexa, open Steady Noise",
-            "Alexa, ask Steady Noise for brown noise",
-            "Alexa, ask Steady Noise for pink noise for two hours"
+            "Alexa, open Steady Noise"
           ],
           "keywords": [
             "white noise",
@@ -31,7 +29,7 @@
       "distributionCountries": [
         "US"
       ],
-      "testingInstructions": "Say 'open Steady Noise', then 'white noise' (free, plays up to one hour). Ask for 'pink noise' or 'brown noise' to hear the Premium upsell; accept it to subscribe in the sandbox. 'pink noise for 1 minute' demonstrates the timer: the stream ends after one minute. Pause, resume, stop, and the device play/pause buttons are handled. No account linking or permissions are required.",
+      "testingInstructions": "Say 'open Steady Noise', then 'white noise' (free, plays up to one hour). In the same session, 'brown noise' or 'pink noise' triggers the Premium upsell; accept it to subscribe in the sandbox. 'pink noise for 1 minute' (with Premium) demonstrates the timer: the stream ends after one minute. Pause, resume, stop, and the device play/pause buttons are handled. No account linking or permissions are required.",
       "category": "SELF_IMPROVEMENT"
     },
     "apis": {
