@@ -32,7 +32,7 @@
         "US"
       ],
       "testingInstructions": "Say 'open Steady Noise', then 'white noise' (free, plays up to one hour). Ask for 'pink noise' or 'brown noise' to hear the Premium upsell; accept it to subscribe in the sandbox. 'pink noise for 1 minute' demonstrates the timer: the stream ends after one minute. Pause, resume, stop, and the device play/pause buttons are handled. No account linking or permissions are required.",
-      "category": "HEALTH_AND_FITNESS"
+      "category": "SELF_IMPROVEMENT"
     },
     "apis": {
       "custom": {
@@ -45,9 +45,6 @@
           }
         ]
       }
-    },
-    "manifestAttributes": {
-      "isChildDirected": false
     },
     "privacyAndCompliance": {
       "allowsPurchases": true,
