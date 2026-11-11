@@ -1,6 +1,6 @@
 # Steady Noise: Alexa skill
 
-White, pink, and brown noise on Alexa, with a monthly Premium subscription.
+White, pink, and brown noise, rain, ocean waves, and a fan on Alexa, with a monthly or yearly Premium subscription.
 
 ```
 "Alexa, ask Steady Noise for white noise"            -> free, plays up to 1 hour
@@ -11,13 +11,13 @@ White, pink, and brown noise on Alexa, with a monthly Premium subscription.
 
 | Tier | Colors | Length |
 |---|---|---|
-| Free | white | up to 1 hour per request |
-| Premium ($1.99/mo, 7-day free trial) | white, pink, brown | all night, or any timer up to 12 h |
+| Free | white | all night, or any timer up to 12 h |
+| Premium ($1.99/mo or $9.99/yr, 7-day free trial) | all six: white, pink, brown, rain, ocean, fan | all night, or any timer up to 12 h |
 
 ## Layout
 
 ```
-audio-build/make_noise.py      generates docs/audio/{white,pink,brown}.mp3 (1 h seamless loops, 96 kbps mono, 43 MB each)
+audio-build/make_noise.py      generates docs/audio/{white,pink,brown,rain,ocean,fan}.mp3 (1 h seamless loops, 96 kbps mono, 43 MB each)
 lambda/index.js                handlers: play, ISP buy/upsell/cancel, AudioPlayer + PlaybackController events
 lambda/src/playback.js         stateless queue/timer logic; all state rides in the AudioPlayer token
 lambda/src/config.js           AUDIO_BASE_URL, free-tier limits, product reference name

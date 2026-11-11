@@ -1,0 +1,63 @@
+{
+  "vendorId": "",
+  "inSkillProductDefinition": {
+    "version": "1.0",
+    "type": "SUBSCRIPTION",
+    "referenceName": "premium_annual",
+    "purchasableState": "PURCHASABLE",
+    "subscriptionInformation": {
+      "subscriptionPaymentFrequency": "YEARLY",
+      "subscriptionTrialPeriodDays": 7
+    },
+    "publishingInformation": {
+      "locales": {
+        "en-US": {
+          "name": "Steady Noise Premium (Yearly)",
+          "smallIconUri": "https://mf4633.github.io/steady-noise-alexa/icon-108.png",
+          "largeIconUri": "https://mf4633.github.io/steady-noise-alexa/icon-512.png",
+          "summary": "A year of pink and brown noise, rain, ocean waves, and a fan.",
+          "description": "The yearly plan of Steady Noise Premium: pink and brown noise, rain, ocean waves, and a fan, all night or on a timer, with no ads. Costs less than half as much as twelve months of the monthly plan.",
+          "examplePhrases": [
+            "Alexa, open Steady Noise",
+            "buy the yearly plan"
+          ],
+          "keywords": [
+            "brown noise",
+            "pink noise",
+            "rain sounds",
+            "ocean waves",
+            "fan",
+            "sleep sounds"
+          ],
+          "customProductPrompts": {
+            "purchasePromptDescription": "The yearly plan of Steady Noise Premium adds pink and brown noise, rain, ocean waves, and a fan for a full year.",
+            "boughtCardDescription": "You now have a year of Steady Noise Premium: white, pink, and brown noise, rain, ocean waves, and a fan."
+          }
+        }
+      },
+      "distributionCountries": [
+        "US"
+      ],
+      "pricing": {
+        "amazon.com": {
+          "releaseDate": "2026-11-09",
+          "defaultPriceListing": {
+            "price": 9.99,
+            "currency": "USD"
+          }
+        }
+      },
+      "taxInformation": {
+        "category": "STREAMING_AUDIO"
+      }
+    },
+    "privacyAndCompliance": {
+      "locales": {
+        "en-US": {
+          "privacyPolicyUrl": "https://mf4633.github.io/steady-noise-alexa/privacy.html"
+        }
+      }
+    },
+    "testingInstructions": "Say 'buy the yearly plan'. It unlocks pink and brown noise, rain, ocean waves, and a fan, the same as the monthly plan (premium)."
+  }
+}

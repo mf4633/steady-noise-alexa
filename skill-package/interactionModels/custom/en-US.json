@@ -112,7 +112,19 @@
             "play noise",
             "play some noise",
             "start",
-            "play"
+            "play",
+            "play {color} sounds",
+            "play {color} sounds for {duration}",
+            "play the {color}",
+            "play the {color} for {duration}",
+            "play the sound of {color}",
+            "play the sound of {color} for {duration}",
+            "turn on the {color}",
+            "turn on the {color} for {duration}",
+            "put on {color}",
+            "put on {color} for {duration}",
+            "I want {color}",
+            "I want {color} for {duration}"
           ]
         },
         {
@@ -129,6 +141,27 @@
             "start my subscription",
             "start a free trial",
             "start the free trial"
+          ]
+        },
+        {
+          "name": "BuyAnnualIntent",
+          "slots": [],
+          "samples": [
+            "buy the yearly plan",
+            "buy the annual plan",
+            "buy yearly",
+            "buy annual",
+            "get the yearly plan",
+            "get the annual plan",
+            "subscribe yearly",
+            "subscribe for a year",
+            "buy a year of premium",
+            "buy the yearly subscription",
+            "buy the annual subscription",
+            "switch to yearly",
+            "switch to the yearly plan",
+            "pay yearly",
+            "pay for a year"
           ]
         },
         {
@@ -188,6 +221,45 @@
                   "brownian",
                   "red",
                   "deep"
+                ]
+              }
+            },
+            {
+              "id": "rain",
+              "name": {
+                "value": "rain",
+                "synonyms": [
+                  "rainfall",
+                  "rain sounds",
+                  "rainy",
+                  "falling rain",
+                  "gentle rain"
+                ]
+              }
+            },
+            {
+              "id": "ocean",
+              "name": {
+                "value": "ocean",
+                "synonyms": [
+                  "ocean waves",
+                  "waves",
+                  "surf",
+                  "sea",
+                  "beach",
+                  "ocean sounds"
+                ]
+              }
+            },
+            {
+              "id": "fan",
+              "name": {
+                "value": "fan",
+                "synonyms": [
+                  "box fan",
+                  "a fan",
+                  "fan sounds",
+                  "electric fan"
                 ]
               }
             }

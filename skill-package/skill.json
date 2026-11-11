@@ -5,8 +5,8 @@
       "locales": {
         "en-US": {
           "name": "Steady Noise",
-          "summary": "White, pink, and brown noise for sleep, focus, or masking sound.",
-          "description": "Steady Noise plays continuous white, pink, or brown noise.\n\nWhite noise is bright and even across all frequencies. Pink noise is softer, like steady rain. Brown noise is deeper still, like a distant waterfall or the rumble of a plane cabin.\n\nHow to use it:\n- Say \"Alexa, open Steady Noise\", then name a color: \"brown noise\"\n- Add a time if you like: \"pink noise for 30 minutes\"\n- \"Alexa, pause\" and \"Alexa, resume\" work anytime\n\nWhite noise is free and plays all night, with no cutoff and no ads. Steady Noise Premium (monthly subscription with a free trial) adds pink and brown noise.\n\nEach sound is a one-hour seamless loop generated from scratch, level-matched so switching colors does not jump in volume.",
+          "summary": "White, pink, and brown noise, rain, ocean waves, and a fan, for sleep or focus.",
+          "description": "Steady Noise plays continuous, ad-free sound for sleep, focus, or masking noise: white, pink, or brown noise, rain, ocean waves, or a fan.\n\nWhite noise is bright and even across all frequencies. Pink noise is softer, brown noise deeper still, like a distant waterfall. Rain is a steady shower; ocean waves swell and draw back every several seconds; the fan is a low, even box-fan hum.\n\nHow to use it:\n- Say \"Alexa, open Steady Noise\", then name a sound: \"brown noise\" or \"rain\"\n- Add a time if you like: \"ocean waves for 30 minutes\"\n- \"Alexa, pause\" and \"Alexa, resume\" work anytime\n\nWhite noise is free and plays all night, with no cutoff and no ads. Steady Noise Premium adds the other five sounds: monthly with a free week, or a yearly plan that costs less than half as much.\n\nEvery sound is a one-hour seamless loop generated from scratch, level-matched so switching sounds does not jump in volume.",
           "examplePhrases": [
             "Alexa, open Steady Noise"
           ],
@@ -19,7 +19,10 @@
             "noise machine",
             "sound masking",
             "ambient",
-            "background noise"
+            "background noise",
+            "rain sounds",
+            "ocean waves",
+            "fan"
           ],
           "smallIconUri": "https://mf4633.github.io/steady-noise-alexa/icon-108.png",
           "largeIconUri": "https://mf4633.github.io/steady-noise-alexa/icon-512.png"
@@ -29,7 +32,7 @@
       "distributionCountries": [
         "US"
       ],
-      "testingInstructions": "Say 'open Steady Noise', then 'white noise' (free, plays until stopped). In the same session, 'brown noise' or 'pink noise' triggers the Premium upsell; accept it to subscribe in the sandbox. 'pink noise for 1 minute' (with Premium) demonstrates the timer: the stream ends after one minute. Pause, resume, stop, and the device play/pause buttons are handled. No account linking or permissions are required.",
+      "testingInstructions": "Say 'open Steady Noise', then 'white noise' (free, plays until stopped). In the same session, 'brown noise', 'rain', 'ocean waves', or 'fan' triggers the Premium upsell (monthly plan); accept it to subscribe in the sandbox. 'buy the yearly plan' buys the yearly plan, which unlocks the same sounds. 'rain for 1 minute' (with Premium) demonstrates the timer: the stream ends after one minute. Pause, resume, stop, and the device play/pause buttons are handled. No account linking or permissions are required.",
       "category": "SELF_IMPROVEMENT"
     },
     "apis": {

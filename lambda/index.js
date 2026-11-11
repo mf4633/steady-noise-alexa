@@ -4,7 +4,11 @@ const cfg = require('./src/config');
 const pb = require('./src/playback');
 
 const ART = 'https://mf4633.github.io/steady-noise-alexa/icon-512.png';
+const say = (c) => cfg.SOUNDS[c].say;
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+const plural = (c) => c === 'ocean';                      // "ocean waves are", "rain is"
+const PREMIUM_LIST = 'pink and brown noise, rain, ocean waves, and a fan';
+const ALL_MENU = 'white, pink, or brown noise, rain, ocean waves, or a fan';
 
 // ---------------------------------------------------------------- helpers
 
@@ -29,13 +33,24 @@ function slotDurationMs(hi) {
   return ms ? Math.min(ms, cfg.MAX_TIMER_MS) : null;
 }
 
-/** The premium product, or null if ISP is unavailable for this user/locale. */
+/**
+ * Premium as one object: the monthly product's fields (productId,
+ * purchasable), entitled if EITHER plan is owned, plus `annual` (the yearly
+ * product or null) and `owned` (the plan the user holds, for cancel).
+ * null if ISP is unavailable for this user/locale.
+ */
 async function getProduct(hi) {
   try {
     const ms = hi.serviceClientFactory.getMonetizationServiceClient();
     const locale = Alexa.getLocale(hi.requestEnvelope);
     const res = await ms.getInSkillProducts(locale);
-    return (res.inSkillProducts || []).find((p) => p.referenceName === cfg.PRODUCT_REF) || null;
+    const list = res.inSkillProducts || [];
+    const monthly = list.find((p) => p.referenceName === cfg.PRODUCT_REF) || null;
+    const annual = list.find((p) => p.referenceName === cfg.ANNUAL_REF) || null;
+    const base = monthly || { purchasable: 'NOT_PURCHASABLE' };
+    if (!monthly && !annual) return null;
+    const owned = [monthly, annual].find((p) => p && p.entitled === 'ENTITLED') || null;
+    return { ...base, entitled: owned ? 'ENTITLED' : 'NOT_ENTITLED', annual, owned };
   } catch (e) {
     console.log('ISP lookup failed:', e && e.message);
     return null;
@@ -43,6 +58,8 @@ async function getProduct(hi) {
 }
 const isEntitled = (p) => !!p && p.entitled === 'ENTITLED';
 const isPurchasable = (p) => !!p && p.purchasable === 'PURCHASABLE';
+const annualFor = (p) => (p && p.annual && p.annual.purchasable === 'PURCHASABLE' ? p.annual : null);
+const canBuy = (p) => isPurchasable(p) || !!annualFor(p);
 
 function audioContext(hi) {
   return (hi.requestEnvelope.context && hi.requestEnvelope.context.AudioPlayer) || {};
@@ -50,7 +67,7 @@ function audioContext(hi) {
 
 function metadata(color) {
   return {
-    title: `${cap(color)} noise`,
+    title: cfg.SOUNDS[color].title,
     subtitle: cfg.SKILL_NAME,
     art: { sources: [{ url: ART }] },
     backgroundImage: { sources: [{ url: ART }] },
@@ -67,10 +84,12 @@ function setPending(hi, pending) {
 }
 
 function upsellOrExplain(hi, product, color, durationMs) {
-  if (!isPurchasable(product)) {
+  // Upsell the monthly plan (it has the free week); fall back to yearly if that's all there is.
+  const offer = isPurchasable(product) ? product : annualFor(product);
+  if (!offer) {
     setPending(hi, { type: 'play', color: 'white', durationMs });
     return hi.responseBuilder
-      .speak(`${cap(color)} noise is part of ${cfg.PREMIUM_NAME}, which isn't available on this account. White noise is free. Want that instead?`)
+      .speak(`${cap(say(color))} ${plural(color) ? 'are' : 'is'} part of ${cfg.PREMIUM_NAME}, which isn't available on this account. White noise is free. Want that instead?`)
       .reprompt('Want white noise instead?')
       .getResponse();
   }
@@ -79,8 +98,8 @@ function upsellOrExplain(hi, product, color, durationMs) {
       type: 'Connections.SendRequest',
       name: 'Upsell',
       payload: {
-        InSkillProduct: { productId: product.productId },
-        upsellMessage: `${cap(color)} noise comes with ${cfg.PREMIUM_NAME}, which plays white, pink, and brown noise for as long as you like. Want to hear more?`,
+        InSkillProduct: { productId: offer.productId },
+        upsellMessage: `${cap(say(color))} ${plural(color) ? 'come' : 'comes'} with ${cfg.PREMIUM_NAME}, which adds ${PREMIUM_LIST}, all night or on a timer. Want to hear more?`,
       },
       token: JSON.stringify({ color, durationMs: durationMs || null }),
     })
@@ -95,7 +114,7 @@ async function startPlayback(hi, color, durationMs, product) {
 
   // Free colors play exactly like premium ones: all night, or on a timer. No cutoff.
   const budget = durationMs || pb.UNLIMITED;
-  const speech = durationMs ? `Playing ${color} noise for ${pb.speakDuration(durationMs)}.` : `Playing ${color} noise.`;
+  const speech = durationMs ? `Playing ${say(color)} for ${pb.speakDuration(durationMs)}.` : `Playing ${say(color)}.`;
   return play(hi.responseBuilder.speak(speech), pb.firstItem(color, budget)).withShouldEndSession(true).getResponse();
 }
 
@@ -106,8 +125,8 @@ function resumeResponse(hi, speech) {
   const rb = hi.responseBuilder;
   if (!item) {
     if (reqType(hi).startsWith('PlaybackController.')) return rb.getResponse();
-    return rb.speak('Nothing to resume. Say white, pink, or brown noise to start.')
-      .reprompt('Which would you like: white, pink, or brown noise?').getResponse();
+    return rb.speak('Nothing to resume. Say white noise, or another sound, to start.')
+      .reprompt(`Which would you like: ${ALL_MENU}?`).getResponse();
   }
   if (speech) rb.speak(speech);
   return play(rb, item).withShouldEndSession(true).getResponse();
@@ -119,12 +138,12 @@ const LaunchHandler = {
   canHandle: (hi) => reqType(hi) === 'LaunchRequest',
   async handle(hi) {
     const product = await getProduct(hi);
-    const tier = isEntitled(product) || !isPurchasable(product)
+    const tier = isEntitled(product) || !canBuy(product)
       ? ''
-      : ` White noise is free. Pink and brown come with ${cfg.PREMIUM_NAME}.`;
+      : ` White noise is free. ${cfg.PREMIUM_NAME} adds the rest.`;
     return hi.responseBuilder
-      .speak(`Welcome to ${cfg.SKILL_NAME}. Which would you like: white, pink, or brown noise? You can add a time, like brown noise for two hours.${tier}`)
-      .reprompt('Say white, pink, or brown noise.')
+      .speak(`Welcome to ${cfg.SKILL_NAME}. Which would you like: ${ALL_MENU}? You can add a time, like rain for two hours.${tier}`)
+      .reprompt('Say white noise, rain, or another sound.')
       .getResponse();
   },
 };
@@ -134,8 +153,8 @@ const PlayNoiseHandler = {
   async handle(hi) {
     const color = slotColor(hi);
     if (!color) {
-      return hi.responseBuilder.speak('Which would you like: white, pink, or brown noise?')
-        .reprompt('Say white, pink, or brown noise.').getResponse();
+      return hi.responseBuilder.speak(`Which would you like: ${ALL_MENU}?`)
+        .reprompt('Say white noise, rain, or another sound.').getResponse();
     }
     return startPlayback(hi, color, slotDurationMs(hi));
   },
@@ -147,7 +166,8 @@ const YesHandler = {
     const { pending } = hi.attributesManager.getSessionAttributes();
     if (pending && pending.type === 'play') return startPlayback(hi, pending.color, pending.durationMs);
     if (pending && pending.type === 'buy') return BuyHandler.handle(hi);
-    return hi.responseBuilder.speak('Say white, pink, or brown noise.').reprompt('Which color?').getResponse();
+    if (pending && pending.type === 'buyAnnual') return BuyAnnualHandler.handle(hi);
+    return hi.responseBuilder.speak('Say white noise, rain, or another sound.').reprompt('Which sound?').getResponse();
   },
 };
 
@@ -156,24 +176,56 @@ const NoHandler = {
   handle: (hi) => hi.responseBuilder.speak('Okay. Goodnight.').withShouldEndSession(true).getResponse(),
 };
 
+function alreadyHave(hi) {
+  return hi.responseBuilder.speak(`You already have ${cfg.PREMIUM_NAME}. Which would you like: ${ALL_MENU}?`)
+    .reprompt('Which sound?').getResponse();
+}
+
+function notAvailable(hi) {
+  return hi.responseBuilder.speak(`${cfg.PREMIUM_NAME} isn't available on this account. White noise is still free; just say white noise.`)
+    .reprompt('Say white noise to start.').getResponse();
+}
+
+function buyDirective(hi, productId) {
+  return hi.responseBuilder.addDirective({
+    type: 'Connections.SendRequest',
+    name: 'Buy',
+    payload: { InSkillProduct: { productId } },
+    token: JSON.stringify({ color: null }),
+  }).getResponse();
+}
+
 const BuyHandler = {
   canHandle: (hi) => intentIs(hi, 'BuyIntent'),
   async handle(hi) {
     const product = await getProduct(hi);
+    if (isEntitled(product)) return alreadyHave(hi);
+    if (isPurchasable(product)) return buyDirective(hi, product.productId);
+    const annual = annualFor(product);
+    if (annual) return buyDirective(hi, annual.productId);
+    return notAvailable(hi);
+  },
+};
+
+const BuyAnnualHandler = {
+  canHandle: (hi) => intentIs(hi, 'BuyAnnualIntent'),
+  async handle(hi) {
+    const product = await getProduct(hi);
     if (isEntitled(product)) {
-      return hi.responseBuilder.speak(`You already have ${cfg.PREMIUM_NAME}. Which would you like: white, pink, or brown noise?`)
-        .reprompt('Which color?').getResponse();
+      if (product.owned && product.owned.referenceName === cfg.ANNUAL_REF) return alreadyHave(hi);
+      // Monthly subscriber: buying yearly on top would bill both. Cancel first.
+      return hi.responseBuilder
+        .speak(`You're on the monthly plan of ${cfg.PREMIUM_NAME}. To switch to yearly, first say cancel my subscription; your monthly plan keeps working until the end of the month you've paid for. Then say buy the yearly plan. Which sound would you like now?`)
+        .reprompt('Which sound?').getResponse();
     }
-    if (!isPurchasable(product)) {
-      return hi.responseBuilder.speak(`${cfg.PREMIUM_NAME} isn't available on this account. White noise is still free; just say white noise.`)
-        .reprompt('Say white noise to start.').getResponse();
+    const annual = annualFor(product);
+    if (annual) return buyDirective(hi, annual.productId);
+    if (isPurchasable(product)) {
+      setPending(hi, { type: 'buy' });
+      return hi.responseBuilder.speak(`The yearly plan isn't available on this account, but the monthly plan of ${cfg.PREMIUM_NAME} is. Want that?`)
+        .reprompt('Want the monthly plan?').getResponse();
     }
-    return hi.responseBuilder.addDirective({
-      type: 'Connections.SendRequest',
-      name: 'Buy',
-      payload: { InSkillProduct: { productId: product.productId } },
-      token: JSON.stringify({ color: null }),
-    }).getResponse();
+    return notAvailable(hi);
   },
 };
 
@@ -182,16 +234,25 @@ const WhatCanIBuyHandler = {
   async handle(hi) {
     const product = await getProduct(hi);
     if (isEntitled(product)) {
-      return hi.responseBuilder.speak(`You have ${cfg.PREMIUM_NAME}: white, pink, and brown noise, for as long as you like. Which would you like?`)
-        .reprompt('Which color?').getResponse();
+      return hi.responseBuilder.speak(`You have ${cfg.PREMIUM_NAME}: ${ALL_MENU}, for as long as you like. Which would you like?`)
+        .reprompt('Which sound?').getResponse();
     }
+    const annual = annualFor(product);
     if (!isPurchasable(product)) {
+      if (annual) {
+        setPending(hi, { type: 'buyAnnual' });
+        return hi.responseBuilder.speak(`${cfg.PREMIUM_NAME} adds ${PREMIUM_LIST}, as a yearly plan. Want to hear more?`)
+          .reprompt('Want to hear about the yearly plan?').getResponse();
+      }
       return hi.responseBuilder.speak('There is nothing to buy on this account right now. White noise is free.')
         .reprompt('Say white noise to start.').getResponse();
     }
     setPending(hi, { type: 'buy' });
+    const yearly = annual
+      ? ' There\'s a monthly plan that starts with a free week, and a yearly plan that costs less than half as much over a year. For the yearly one, say buy the yearly plan.'
+      : '';
     return hi.responseBuilder
-      .speak(`${cfg.PREMIUM_NAME} adds pink and brown noise, the softer and deeper sounds many people sleep best to. Want to subscribe?`)
+      .speak(`${cfg.PREMIUM_NAME} adds ${PREMIUM_LIST}, all night or on a timer.${yearly} ${annual ? 'Want to start the monthly plan?' : 'Want to subscribe?'}`)
       .reprompt(`Want to subscribe to ${cfg.PREMIUM_NAME}?`)
       .getResponse();
   },
@@ -204,10 +265,12 @@ const CancelSubscriptionHandler = {
     if (!product) {
       return hi.responseBuilder.speak('There is no subscription to cancel on this account.').withShouldEndSession(true).getResponse();
     }
+    // Cancel the plan they actually hold; with neither, Amazon's flow explains.
+    const target = product.owned || (product.productId ? product : product.annual);
     return hi.responseBuilder.addDirective({
       type: 'Connections.SendRequest',
       name: 'Cancel',
-      payload: { InSkillProduct: { productId: product.productId } },
+      payload: { InSkillProduct: { productId: target.productId } },
       token: JSON.stringify({ color: null }),
     }).getResponse();
   },
@@ -239,8 +302,8 @@ const PurchaseResponseHandler = {
 
     if (result === 'ACCEPTED' || result === 'ALREADY_PURCHASED') {
       if (ask.color) return startPlayback(hi, ask.color, ask.durationMs, { entitled: 'ENTITLED' });
-      return rb.speak('You\'re all set. Which would you like: white, pink, or brown noise?')
-        .reprompt('Which color?').getResponse();
+      return rb.speak(`You're all set. Which would you like: ${ALL_MENU}?`)
+        .reprompt('Which sound?').getResponse();
     }
 
     // DECLINED (or PENDING_PURCHASE): offer the free color.
@@ -254,13 +317,13 @@ const HelpHandler = {
   async handle(hi) {
     const product = await getProduct(hi);
     const tier = isEntitled(product)
-      ? ` You have ${cfg.PREMIUM_NAME}, so every color plays until you stop it.`
-      : (isPurchasable(product)
-        ? ` White noise is free, all night if you like. ${cfg.PREMIUM_NAME} adds pink and brown. Say what can I buy to hear more.`
+      ? ` You have ${cfg.PREMIUM_NAME}, so every sound is yours.`
+      : (canBuy(product)
+        ? ` White noise is free, all night if you like. ${cfg.PREMIUM_NAME} adds ${PREMIUM_LIST}. Say what can I buy to hear more.`
         : ' White noise is free, all night if you like.');
     return hi.responseBuilder
-      .speak(`${cfg.SKILL_NAME} plays steady background noise. Say white, pink, or brown noise, or add a time, like pink noise for 30 minutes. Say stop or pause anytime.${tier} Which would you like?`)
-      .reprompt('Say white, pink, or brown noise.')
+      .speak(`${cfg.SKILL_NAME} plays steady sounds for sleep and focus: ${ALL_MENU}. Name one, or add a time, like rain for 30 minutes. Say stop or pause anytime.${tier} Which would you like?`)
+      .reprompt('Say white noise, rain, or another sound.')
       .getResponse();
   },
 };
@@ -281,17 +344,17 @@ const UnsupportedAudioHandler = {
   handle: (hi) => {
     const ctx = audioContext(hi);
     if (pb.parseToken(ctx.token)) {
-      return resumeResponse(hi, 'This plays continuously. To switch colors, say: Alexa, ask Steady Noise for pink noise.');
+      return resumeResponse(hi, 'This plays continuously. To switch sounds, say: Alexa, open Steady Noise, then name a sound.');
     }
-    return hi.responseBuilder.speak('That isn\'t supported here. Say white, pink, or brown noise.')
-      .reprompt('Which color?').getResponse();
+    return hi.responseBuilder.speak(`That isn't supported here. Say ${ALL_MENU}.`)
+      .reprompt('Which sound?').getResponse();
   },
 };
 
 const FallbackHandler = {
   canHandle: (hi) => intentIs(hi, 'AMAZON.FallbackIntent'),
-  handle: (hi) => hi.responseBuilder.speak('I can play white, pink, or brown noise. Which would you like?')
-    .reprompt('Say white, pink, or brown noise.').getResponse(),
+  handle: (hi) => hi.responseBuilder.speak(`I can play ${ALL_MENU}. Which would you like?`)
+    .reprompt('Say white noise, rain, or another sound.').getResponse(),
 };
 
 // ---------------------------------------------------------------- audio events
@@ -349,13 +412,13 @@ const ErrorHandler = {
     console.log('Error:', error && error.stack);
     const t = reqType(hi);
     if (t.startsWith('AudioPlayer.') || t.startsWith('PlaybackController.')) return hi.responseBuilder.getResponse();
-    return hi.responseBuilder.speak('Sorry, something went wrong. Say white, pink, or brown noise to try again.')
-      .reprompt('Which color?').getResponse();
+    return hi.responseBuilder.speak('Sorry, something went wrong. Say white noise, or another sound, to try again.')
+      .reprompt('Which sound?').getResponse();
   },
 };
 
 const handlers = [
-  LaunchHandler, PlayNoiseHandler, YesHandler, NoHandler, BuyHandler, WhatCanIBuyHandler,
+  LaunchHandler, PlayNoiseHandler, YesHandler, NoHandler, BuyHandler, BuyAnnualHandler, WhatCanIBuyHandler,
   CancelSubscriptionHandler, PurchaseResponseHandler, HelpHandler, PauseStopHandler, ResumeHandler,
   UnsupportedAudioHandler, FallbackHandler, NearlyFinishedHandler, AudioEventHandler, PlaybackFailedHandler,
   PlaybackControllerHandler, SystemExceptionHandler, SessionEndedHandler,

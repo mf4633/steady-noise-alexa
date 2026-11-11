@@ -20,7 +20,7 @@ function buildSkill(product) {
     invoke: async (req) => {
       if (req.url.includes('/inSkillProducts')) {
         if (product === 'fail') return { statusCode: 500, headers: [], body: '{}' };
-        return { statusCode: 200, headers: [], body: JSON.stringify({ inSkillProducts: product ? [product] : [], isTruncated: false }) };
+        return { statusCode: 200, headers: [], body: JSON.stringify({ inSkillProducts: Array.isArray(product) ? product : (product ? [product] : []), isTruncated: false }) };
       }
       return { statusCode: 404, headers: [], body: '{}' };
     },
@@ -34,6 +34,11 @@ function buildSkill(product) {
 
 const FREE = { productId: 'amzn1.adg.product.x', referenceName: 'premium', entitled: 'NOT_ENTITLED', purchasable: 'PURCHASABLE' };
 const PAID = { ...FREE, entitled: 'ENTITLED', purchasable: 'NOT_PURCHASABLE' };
+const YEAR = { productId: 'amzn1.adg.product.y', referenceName: 'premium_annual', entitled: 'NOT_ENTITLED', purchasable: 'PURCHASABLE' };
+const YEAR_PAID = { ...YEAR, entitled: 'ENTITLED', purchasable: 'NOT_PURCHASABLE' };
+const BOTH_FREE = [FREE, YEAR];
+const MONTHLY_SUB = [PAID, YEAR];
+const YEARLY_SUB = [{ ...FREE, purchasable: 'NOT_PURCHASABLE' }, YEAR_PAID];
 
 function envelope(request, { audio, session } = {}) {
   return {
@@ -122,7 +127,7 @@ test('resume carries the remaining budget, net of time played', () => {
 // ------------------------------------------------------------- handlers
 
 test('launch pitches premium only to non-subscribers', async () => {
-  assert.match(speech(await run(FREE, { type: 'LaunchRequest' })), /Pink and brown come with Steady Noise Premium/);
+  assert.match(speech(await run(FREE, { type: 'LaunchRequest' })), /Steady Noise Premium adds the rest/);
   assert.doesNotMatch(speech(await run(PAID, { type: 'LaunchRequest' })), /Premium/);
   assert.doesNotMatch(speech(await run(null, { type: 'LaunchRequest' })), /Premium/);     // ISP not offered
 });
@@ -266,4 +271,81 @@ test('interaction model and manifest are consistent', () => {
   assert.equal(m.privacyAndCompliance.allowsPurchases, true);
   const isp = require('../skill-package/isps/subscription/premium.json').inSkillProductDefinition;
   assert.equal(isp.referenceName, require('../lambda/src/config.js').PRODUCT_REF);
+});
+
+// ------------------------------------------------------------- new sounds + yearly plan
+
+test('every sound has a config entry and spoken name; model offers each one', () => {
+  const cfg = require('../lambda/src/config.js');
+  assert.deepEqual(cfg.COLORS, ['white', 'pink', 'brown', 'rain', 'ocean', 'fan']);
+  const model = require('../skill-package/interactionModels/custom/en-US.json').interactionModel.languageModel;
+  const ids = model.types.find((t) => t.name === 'NOISE_COLOR').values.map((v) => v.id);
+  assert.deepEqual(ids.sort(), [...cfg.COLORS].sort());
+  for (const c of cfg.COLORS) assert.ok(pb.parseToken(pb.makeToken({ color: c })), c);
+});
+
+test('subscriber: rain, ocean, fan play with natural phrasing', async () => {
+  for (const [c, phrase] of [['rain', /Playing rain./], ['ocean', /Playing ocean waves for 2 hours/], ['fan', /Playing fan sounds/]]) {
+    const r = await run(PAID, intent('PlayNoiseIntent', { color: c, duration: c === 'ocean' ? 'PT2H' : undefined }));
+    assert.equal(playDir(r).audioItem.stream.url, `https://cdn.test/noise/${c}.mp3`);
+    assert.match(speech(r), phrase);
+    assert.ok(playDir(r).audioItem.metadata.title.length > 0);
+  }
+});
+
+test('ocean waves resolve from "waves"; free user gets the upsell with plural grammar', async () => {
+  const req = intent('PlayNoiseIntent', { color: 'waves' });
+  req.intent.slots.color.resolutions = { resolutionsPerAuthority: [{ status: { code: 'ER_SUCCESS_MATCH' }, values: [{ value: { name: 'ocean', id: 'ocean' } }] }] };
+  const r = await run(BOTH_FREE, req);
+  const d = r.directives.find((x) => x.type === 'Connections.SendRequest');
+  assert.equal(d.name, 'Upsell');
+  assert.equal(d.payload.InSkillProduct.productId, FREE.productId, 'upsell offers monthly (free trial)');
+  assert.match(d.payload.upsellMessage, /^Ocean waves come with/);
+});
+
+test('either plan unlocks premium sounds', async () => {
+  for (const prod of [MONTHLY_SUB, YEARLY_SUB, [YEAR_PAID]]) {
+    const r = await run(prod, intent('PlayNoiseIntent', { color: 'rain' }));
+    assert.ok(playDir(r), JSON.stringify(prod));
+  }
+});
+
+test('buy the yearly plan: buys yearly; monthly subs are told to cancel first; yearly subs already have it', async () => {
+  const b = await run(BOTH_FREE, intent('BuyAnnualIntent'));
+  assert.equal(b.directives[0].name, 'Buy');
+  assert.equal(b.directives[0].payload.InSkillProduct.productId, YEAR.productId);
+  const m = await run(MONTHLY_SUB, intent('BuyAnnualIntent'));
+  assert.equal((m.directives || []).length, 0);
+  assert.match(speech(m), /cancel my subscription/);
+  assert.match(speech(await run(YEARLY_SUB, intent('BuyAnnualIntent'))), /already have/);
+  // No yearly product offered: falls back to monthly on yes
+  const only = await run(FREE, intent('BuyAnnualIntent'));
+  assert.match(speech(only), /monthly plan/);
+});
+
+test('buy premium still buys monthly; yearly-only catalog buys yearly', async () => {
+  assert.equal((await run(BOTH_FREE, intent('BuyIntent'))).directives[0].payload.InSkillProduct.productId, FREE.productId);
+  const yOnly = await run([YEAR], intent('BuyIntent'));
+  assert.equal(yOnly.directives[0].payload.InSkillProduct.productId, YEAR.productId);
+});
+
+test('what can I buy mentions the yearly plan when offered', async () => {
+  assert.match(speech(await run(BOTH_FREE, intent('WhatCanIBuyIntent'))), /yearly plan that costs less than half/);
+  assert.doesNotMatch(speech(await run(FREE, intent('WhatCanIBuyIntent'))), /yearly/);
+});
+
+test('cancel targets the plan the user holds', async () => {
+  assert.equal((await run(YEARLY_SUB, intent('CancelSubscriptionIntent'))).directives[0].payload.InSkillProduct.productId, YEAR.productId);
+  assert.equal((await run(MONTHLY_SUB, intent('CancelSubscriptionIntent'))).directives[0].payload.InSkillProduct.productId, FREE.productId);
+});
+
+test('yearly ISP mirrors monthly, with YEARLY billing and a lower effective price', () => {
+  const mon = require('../skill-package/isps/subscription/premium.json').inSkillProductDefinition;
+  const yr = require('../skill-package/isps/subscription/premium_annual.json').inSkillProductDefinition;
+  assert.equal(yr.referenceName, require('../lambda/src/config.js').ANNUAL_REF);
+  assert.equal(yr.subscriptionInformation.subscriptionPaymentFrequency, 'YEARLY');
+  const price = (d) => d.publishingInformation.pricing['amazon.com'].defaultPriceListing.price;
+  assert.ok(price(yr) < 0.5 * 12 * price(mon), 'yearly < half of 12x monthly, as spoken');
+  const model = require('../skill-package/interactionModels/custom/en-US.json').interactionModel.languageModel;
+  assert.ok(model.intents.some((i) => i.name === 'BuyAnnualIntent'));
 });

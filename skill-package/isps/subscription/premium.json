@@ -15,8 +15,8 @@
           "name": "Steady Noise Premium",
           "smallIconUri": "https://mf4633.github.io/steady-noise-alexa/icon-108.png",
           "largeIconUri": "https://mf4633.github.io/steady-noise-alexa/icon-512.png",
-          "summary": "Adds pink and brown noise.",
-          "description": "Adds pink and brown noise to Steady Noise. Pink is softer, like steady rain; brown is deeper, like a distant waterfall. Both play all night or on a timer.",
+          "summary": "Adds pink and brown noise, rain, ocean waves, and a fan.",
+          "description": "Adds pink and brown noise, rain, ocean waves, and a fan to Steady Noise. Every sound plays all night or on a timer, with no ads. Monthly plan with a free week.",
           "examplePhrases": [
             "Alexa, open Steady Noise",
             "buy premium"
@@ -24,12 +24,14 @@
           "keywords": [
             "brown noise",
             "pink noise",
-            "white noise",
+            "rain sounds",
+            "ocean waves",
+            "fan",
             "sleep sounds"
           ],
           "customProductPrompts": {
-            "purchasePromptDescription": "Steady Noise Premium adds pink and brown noise and plays any color all night.",
-            "boughtCardDescription": "You now have Steady Noise Premium: white, pink, and brown noise."
+            "purchasePromptDescription": "Steady Noise Premium adds pink and brown noise, rain, ocean waves, and a fan.",
+            "boughtCardDescription": "You now have Steady Noise Premium: white, pink, and brown noise, rain, ocean waves, and a fan."
           }
         }
       },
@@ -56,6 +58,6 @@
         }
       }
     },
-    "testingInstructions": "Ask for pink or brown noise, or say 'buy premium'. Premium unlocks pink and brown. White noise is free with no time limit."
+    "testingInstructions": "Ask for pink noise, brown noise, rain, ocean waves, or a fan, or say 'buy premium'. Premium unlocks those five sounds. White noise is free with no time limit. The yearly plan (premium_annual) unlocks the same sounds."
   }
 }
