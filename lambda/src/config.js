@@ -3,7 +3,7 @@
 // Where the MP3s live. Must be HTTPS with a publicly trusted certificate
 // (Alexa refuses self-signed). Files: <sound>.mp3 for every id in SOUNDS.
 // Set AUDIO_BASE_URL in the Lambda environment, or edit the default here.
-const AUDIO_BASE_URL = (process.env.AUDIO_BASE_URL || 'https://mf4633.github.io/steady-noise-alexa/audio').replace(/\/+$/, '');
+const AUDIO_BASE_URL = (process.env.AUDIO_BASE_URL || 'https://steady-noise-audio.steady-noise-audio-worker.workers.dev').replace(/\/+$/, '');
 
 // id -> how it is spoken ("Playing rain") and titled on screens.
 const SOUNDS = {
